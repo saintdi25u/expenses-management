@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: expenses-postgres
+    environment:
+      POSTGRES_DB: expenses
+      POSTGRES_USER: expenses
+      POSTGRES_PASSWORD: expenses
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expenses -d expenses"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: expenses-backend
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/expenses
+      DB_USERNAME: expenses
+      DB_PASSWORD: expenses
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
