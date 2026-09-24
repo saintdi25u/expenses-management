@@ -47,3 +47,50 @@ jobs:
 
       - name: Run tests
         run: mvn -B test
+
+  migrations:
+    name: DB migrations
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine          # même version que docker-compose / Testcontainers
+        env:
+          POSTGRES_DB: expenses
+          POSTGRES_USER: expenses
+          POSTGRES_PASSWORD: expenses
+        ports: [ "5432:5432" ]
+        options: >-
+          --health-cmd "pg_isready -U expenses -d expenses"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      FLYWAY_IMAGE: flyway/flyway:11
+      FLYWAY_ARGS: >-
+        -url=jdbc:postgresql://localhost:5432/expenses
+        -user=expenses
+        -password=expenses
+        -validateMigrationNaming=true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Simule l'état de la prod : applique d'abord les migrations de la branche cible
+      - name: Apply migrations from base branch
+        if: github.event_name == 'pull_request'
+        run: |
+          mkdir -p /tmp/base-migrations
+          git archive "origin/${{ github.base_ref }}" backend/src/main/resources/db/migration \
+            | tar -x --strip-components=5 -C /tmp/base-migrations \
+            || echo "No migrations on base branch"
+          docker run --rm --network host \
+            -v /tmp/base-migrations:/flyway/sql \
+            "$FLYWAY_IMAGE" $FLYWAY_ARGS migrate
+
+      # Applique les migrations de la branche par-dessus (échoue si un script déjà appliqué a été modifié)
+      - name: Apply migrations from current branch
+        run: |
+          docker run --rm --network host \
+            -v "${{ github.workspace }}/backend/src/main/resources/db/migration:/flyway/sql" \
+            "$FLYWAY_IMAGE" $FLYWAY_ARGS migrate validate info
