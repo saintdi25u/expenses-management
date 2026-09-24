@@ -18,6 +18,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <openapi-generator.version>7.25.0</openapi-generator.version>
     </properties>
 
     <dependencies>
@@ -69,6 +70,39 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-dtos</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/expenses-api.yml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <modelPackage>com.corentin.expenses.api.dto</modelPackage>
+                            <modelNameSuffix>Dto</modelNameSuffix>
+                            <generateApis>false</generateApis>
+                            <generateModels>true</generateModels>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useBeanValidation>true</useBeanValidation>
+                                <openApiNullable>false</openApiNullable>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>none</documentationProvider>
+                                <dateLibrary>java8</dateLibrary>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
