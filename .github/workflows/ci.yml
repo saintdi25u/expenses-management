@@ -30,6 +30,9 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     needs: build          # ne se lance que si le build passe
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +43,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+          cache-dependency-path: backend/pom.xml
 
       - name: Run tests
         run: mvn -B test
