@@ -10,7 +10,7 @@ CREATE SEQUENCE transaction_id_seq START WITH 1 INCREMENT BY 50;
 -- ---------------------------------------------------------------------------
 -- Table : user  ("user" est un mot réservé PostgreSQL, d'où les guillemets)
 -- ---------------------------------------------------------------------------
-CREATE TABLE "user" (
+CREATE TABLE users (
     id            INT8       NOT NULL DEFAULT nextval('user_id_seq'),
     first_name    TEXT NOT NULL,
     last_name     TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE category (
     created_at TIMESTAMP    NOT NULL,
     updated_at TIMESTAMP    NOT NULL,
     CONSTRAINT pk_category PRIMARY KEY (id),
-    CONSTRAINT fk_category_owner FOREIGN KEY (owner_id) REFERENCES "user" (id)
+    CONSTRAINT fk_category_owner FOREIGN KEY (owner_id) REFERENCES users (id)
 );
 
 -- ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ CREATE TABLE transaction (
     created_at       TIMESTAMP      NOT NULL,
     updated_at       TIMESTAMP      NOT NULL,
     CONSTRAINT pk_transaction PRIMARY KEY (id),
-    CONSTRAINT fk_transaction_user FOREIGN KEY (user_id) REFERENCES "user" (id),
+    CONSTRAINT fk_transaction_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_transaction_category FOREIGN KEY (category_id) REFERENCES category (id),
     CONSTRAINT ck_transaction_type CHECK (transaction_type IN ('DEBIT', 'CREDIT'))
 );
