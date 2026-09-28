@@ -1,16 +1,10 @@
 package com.corentin.expenses.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class UserEntity extends AuditEntity {
 
     @Id
@@ -34,6 +28,12 @@ public class UserEntity extends AuditEntity {
     @Column(name = "password_hash")
     @NotNull
     private String passwordHash;
+
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Role role = Role.USER;
+
 
     public Long getId() {
         return id;
@@ -73,5 +73,13 @@ public class UserEntity extends AuditEntity {
 
     public void setPassword_hash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

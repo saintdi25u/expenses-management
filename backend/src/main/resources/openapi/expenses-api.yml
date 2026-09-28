@@ -5,27 +5,219 @@ info:
   version: 0.0.1
 servers:
   - url: http://localhost:8080
-paths: {}
+tags:
+  - name: Auth
+    description: Authentication
+paths:
+  /auth/login:
+    post:
+      tags: [ Auth ]
+      operationId: authLogin
+      summary: Authentication login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /auth/register:
+    post:
+      tags: [ Auth ]
+      operationId: authRegister
+      summary: Authentication register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Register success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
 components:
+  parameters:
+    TransactionId:
+      name: transactionId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
   schemas:
-    Expense:
+    TransactionType:
+      type: string
+      enum:
+        - DEBIT
+        - CREDIT
+
+    TransactionRequest:
       type: object
       required:
-        - label
+        - name
         - amount
         - date
+        - transactionType
       properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
-        label:
+        name:
           type: string
           maxLength: 255
+        description:
+          type: string
         amount:
           type: number
-          format: double
           minimum: 0
         date:
           type: string
           format: date
+        categoryId:
+          type: integer
+          format: int64
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+
+    Transaction:
+      type: object
+      required:
+        - id
+        - name
+        - amount
+        - date
+        - transactionType
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date
+        categoryId:
+          type: integer
+          format: int64
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CategoryRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 255
+
+    Category:
+      type: object
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        lastName:
+          type: string
+        firstName:
+          type: string
+
+    AuthResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
