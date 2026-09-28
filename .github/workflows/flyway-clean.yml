@@ -1,0 +1,19 @@
+# .github/workflows/flyway-clean.yml
+name: Flyway clean (manuel)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Flyway clean
+        run: |
+          docker run --rm flyway/flyway:11 \
+            -url=jdbc:postgresql://${{ secrets.DEV_DB_HOST }}:5432/expenses \
+            -user=${{ secrets.DEV_DB_USER }} \
+            -password=${{ secrets.DEV_DB_PASSWORD }} \
+            -cleanDisabled=false \
+            clean
